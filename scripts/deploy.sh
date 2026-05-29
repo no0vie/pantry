@@ -59,7 +59,7 @@ rollback_nginx() {
 cleanup_previous_deploy() {
     info "Удаление предыдущего deploy..."
 
-    rm -f "$WWW_LINK"
+    rm -rf "$WWW_LINK"
     rm -f "$NGINX_ENABLED"
     rm -f "$NGINX_AVAILABLE"
 
