@@ -1,47 +1,18 @@
 import React, { useState, useEffect } from "react";
-import {
-  Layout,
-  Menu,
-  Button,
-  Card,
-  Row,
-  Col,
-  Typography,
-  Space,
-  Tag,
-  List,
-  Form,
-  Input,
-  Empty,
-  Badge,
-  Statistic,
-  Segmented,
-  Progress,
-  message,
-} from "antd";
+import { Layout, Menu, Button, Form, message, Space } from "antd";
 import {
   PlusOutlined,
-  ShoppingCartOutlined,
-  UnorderedListOutlined,
-  TagsOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  TeamOutlined,
   BookOutlined,
-  DownOutlined,
-  UpOutlined,
-  SearchOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Recipe, ShoppingItem, GroupByType } from "./types";
-import { AVAILABLE_TAGS } from "./constants/tags";
-import ShoppingListItem from "./components/ShoppingListItem";
+import RecipeCard from "./components/RecipeCard";
 import RecipeModal from "./components/RecipeModal";
 import RecipeItemModal from "./components/RecipeItemModal";
 import RecipeSider from "./components/RecipeSider";
 
-const { Header, Content } = Layout;
-const { Title, Paragraph, Text } = Typography;
+const { Header } = Layout;
 
 const App: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -405,41 +376,7 @@ const App: React.FC = () => {
   };
 
   // Группировка элементов
-  const getGroupedItems = (): { [key: string]: ShoppingItem[] } => {
-    if (!selectedRecipe) return {};
-
-    let items = selectedRecipe.shoppingList.filter((item) =>
-      item.name.toLowerCase().includes(searchText.toLowerCase()),
-    );
-
-    switch (groupBy) {
-      case "recipe":
-        return { [selectedRecipe.title]: items };
-
-      case "tag":
-        const grouped: { [key: string]: ShoppingItem[] } = {};
-        items.forEach((item) => {
-          if (item.tags.length === 0) {
-            if (!grouped["Без тега"]) grouped["Без тега"] = [];
-            grouped["Без тега"].push(item);
-          } else {
-            item.tags.forEach((tagId) => {
-              const tag = AVAILABLE_TAGS.find((t) => t.id === tagId);
-              const tagName = tag?.name || tagId;
-              if (!grouped[tagName]) grouped[tagName] = [];
-              grouped[tagName].push(item);
-            });
-          }
-        });
-        return grouped;
-
-      case "none":
-        return { "Все покупки": items };
-
-      default:
-        return { [selectedRecipe.title]: items };
-    }
-  };
+  // Removed getGroupedItems function to avoid unused dependency on AVAILABLE_TAGS
 
   // Статистика
   const getRecipeStats = (recipe: Recipe) => {
@@ -521,203 +458,22 @@ const App: React.FC = () => {
           handleDeleteRecipe={handleDeleteRecipe}
         />
 
-        <Content style={{ padding: "24px", background: "#f5f5f5" }}>
-          {selectedRecipe ? (
-            <>
-              {/* Заголовок рецепта */}
-              <Card style={{ marginBottom: "24px" }}>
-                <Row gutter={16} align="middle">
-                  <Col flex="auto">
-                    <Title level={2} style={{ margin: 0 }}>
-                      {selectedRecipe.title}
-                    </Title>
-                    {selectedRecipe.description && (
-                      <Paragraph style={{ marginTop: "8px", marginBottom: 0 }}>
-                        {selectedRecipe.description}
-                      </Paragraph>
-                    )}
-                    <Space style={{ marginTop: "12px" }}>
-                      {selectedRecipe.cookingTime && (
-                        <Tag icon={<ClockCircleOutlined />} color="blue">
-                          {selectedRecipe.cookingTime} минут
-                        </Tag>
-                      )}
-                      {selectedRecipe.servings && (
-                        <Tag icon={<TeamOutlined />} color="green">
-                          {selectedRecipe.servings} порций
-                        </Tag>
-                      )}
-                      <Text type="secondary">
-                        Обновлено:{" "}
-                        {selectedRecipe.updatedAt.toLocaleDateString()}
-                      </Text>
-                    </Space>
-                  </Col>
-                  <Col>
-                    <Card size="small">
-                      <Statistic
-                        title="Прогресс покупок"
-                        value={currentStats.percentage}
-                        suffix="%"
-                        prefix={<ShoppingCartOutlined />}
-                      />
-                      <Progress
-                        percent={currentStats.percentage}
-                        size="small"
-                        style={{ marginTop: "8px" }}
-                      />
-                      <Text type="secondary" style={{ fontSize: "12px" }}>
-                        {currentStats.completed} из {currentStats.total} куплено
-                      </Text>
-                    </Card>
-                  </Col>
-                </Row>
-              </Card>
-
-              {/* Панель управления */}
-              <Card style={{ marginBottom: "24px" }}>
-                <Row gutter={16} align="middle">
-                  <Col flex="auto">
-                    <Space size="large">
-                      <Input
-                        placeholder="Поиск по списку..."
-                        prefix={<SearchOutlined />}
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        style={{ width: "250px" }}
-                        allowClear
-                      />
-                      <Segmented
-                        value={groupBy}
-                        onChange={(value) => setGroupBy(value as GroupByType)}
-                        options={[
-                          {
-                            label: "По рецепту",
-                            value: "recipe",
-                            icon: <BookOutlined />,
-                          },
-                          {
-                            label: "По тегам",
-                            value: "tag",
-                            icon: <TagsOutlined />,
-                          },
-                          {
-                            label: "Без группировки",
-                            value: "none",
-                            icon: <UnorderedListOutlined />,
-                          },
-                        ]}
-                      />
-                    </Space>
-                  </Col>
-                  <Col>
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() => {
-                        setEditingItem(null);
-                        itemForm.resetFields();
-                        setIsItemModalVisible(true);
-                      }}
-                    >
-                      Добавить покупку
-                    </Button>
-                  </Col>
-                </Row>
-              </Card>
-
-              {/* Список покупок с группировкой */}
-              {Object.entries(getGroupedItems()).map(([groupName, items]) => (
-                <Card
-                  key={groupName}
-                  style={{ marginBottom: "24px" }}
-                  title={
-                    <Space>
-                      <Text strong style={{ fontSize: "16px" }}>
-                        {groupName}
-                      </Text>
-                      <Badge
-                        count={items.length}
-                        style={{ backgroundColor: "#1890ff" }}
-                      />
-                      <Badge
-                        count={items.filter((i) => i.completed).length}
-                        style={{ backgroundColor: "#52c41a" }}
-                      >
-                        <CheckCircleOutlined />
-                      </Badge>
-                    </Space>
-                  }
-                  extra={
-                    <Button
-                      type="text"
-                      icon={
-                        collapsedSections.includes(groupName) ? (
-                          <DownOutlined />
-                        ) : (
-                          <UpOutlined />
-                        )
-                      }
-                      onClick={() => {
-                        if (collapsedSections.includes(groupName)) {
-                          setCollapsedSections(
-                            collapsedSections.filter((s) => s !== groupName),
-                          );
-                        } else {
-                          setCollapsedSections([
-                            ...collapsedSections,
-                            groupName,
-                          ]);
-                        }
-                      }}
-                    />
-                  }
-                >
-                  {!collapsedSections.includes(groupName) &&
-                    (items.length > 0 ? (
-                      <List
-                        dataSource={items}
-                        renderItem={(item) => (
-                          <ShoppingListItem
-                            item={item}
-                            onEdit={handleEditItem}
-                            onDelete={handleDeleteItem}
-                            onToggle={handleToggleItem}
-                          />
-                        )}
-                      />
-                    ) : (
-                      <Empty description="Нет покупок в этой категории" />
-                    ))}
-                </Card>
-              ))}
-
-              {Object.keys(getGroupedItems()).length === 0 && (
-                <Empty
-                  description="Список покупок пуст"
-                  style={{ marginTop: "50px" }}
-                >
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      setEditingItem(null);
-                      itemForm.resetFields();
-                      setIsItemModalVisible(true);
-                    }}
-                  >
-                    Добавить первую покупку
-                  </Button>
-                </Empty>
-              )}
-            </>
-          ) : (
-            <Empty
-              description="Выберите рецепт или создайте новый"
-              style={{ marginTop: "100px" }}
-            />
-          )}
-        </Content>
+        <RecipeCard
+          selectedRecipe={selectedRecipe}
+          currentStats={currentStats}
+          groupBy={groupBy}
+          setGroupBy={setGroupBy}
+          searchText={searchText}
+          setSearchText={setSearchText}
+          collapsedSections={collapsedSections}
+          setCollapsedSections={setCollapsedSections}
+          itemForm={itemForm}
+          setIsItemModalVisible={setIsItemModalVisible}
+          setEditingItem={setEditingItem}
+          handleEditItem={handleEditItem}
+          handleDeleteItem={handleDeleteItem}
+          handleToggleItem={handleToggleItem}
+        />
       </Layout>
 
       {/* Модальное окно для рецепта */}
