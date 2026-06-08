@@ -1,5 +1,21 @@
 import React from "react";
-import { Layout, Card, Row, Col, Typography, Space, Tag, Statistic, Progress, Badge, Button, Input, Segmented, List, Empty } from "antd";
+import {
+  Layout,
+  Card,
+  Row,
+  Col,
+  Typography,
+  Space,
+  Tag,
+  Statistic,
+  Progress,
+  Badge,
+  Button,
+  Input,
+  Segmented,
+  List,
+  Empty,
+} from "antd";
 import {
   PlusOutlined,
   ShoppingCartOutlined,
@@ -58,7 +74,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     if (!selectedRecipe) return {};
 
     let items = selectedRecipe.shoppingList.filter((item) =>
-      item.name.toLowerCase().includes(searchText.toLowerCase())
+      item.name.toLowerCase().includes(searchText.toLowerCase()),
     );
 
     switch (groupBy) {
@@ -116,7 +132,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                     </Tag>
                   )}
                   <Text type="secondary">
-                    Обновлено: {selectedRecipe.updatedAt.toLocaleDateString()}
+                    Обновлено:{" "}
+                    {selectedRecipe.updatedAt?.toLocaleDateString?.()}
                   </Text>
                 </Space>
               </Col>
@@ -228,13 +245,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                   onClick={() => {
                     if (collapsedSections.includes(groupName)) {
                       setCollapsedSections(
-                        collapsedSections.filter((s) => s !== groupName)
+                        collapsedSections.filter((s) => s !== groupName),
                       );
                     } else {
-                      setCollapsedSections([
-                        ...collapsedSections,
-                        groupName,
-                      ]);
+                      setCollapsedSections([...collapsedSections, groupName]);
                     }
                   }}
                 />

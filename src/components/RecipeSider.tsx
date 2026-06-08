@@ -7,6 +7,7 @@ import {
   Popconfirm,
   Badge,
   Space,
+  Flex,
 } from "antd";
 import {
   EditOutlined,
@@ -40,6 +41,11 @@ const RecipeSider: React.FC<RecipeSiderProps> = ({
   form,
   handleDeleteRecipe,
 }) => {
+  const lastSaved =
+    typeof window !== "undefined"
+      ? localStorage.getItem("recipes_last_saved")
+      : null;
+  const lastSavedDate = lastSaved ? new Date(parseInt(lastSaved)) : null;
   return (
     <Sider
       width={280}
@@ -51,6 +57,11 @@ const RecipeSider: React.FC<RecipeSiderProps> = ({
     >
       <div style={{ padding: "0 16px", marginBottom: "16px" }}>
         <Title level={5}>Мои рецепты ({recipes.length})</Title>
+        {lastSavedDate ? (
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            Сохранено {lastSavedDate.toLocaleString()}
+          </Text>
+        ) : null}
       </div>
       <List
         dataSource={recipes}
