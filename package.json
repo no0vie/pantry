@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "antd": "^6.3.6",
+    "mobx": "^6.16.0",
+    "mobx-react-lite": "^4.1.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
