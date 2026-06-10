@@ -21,36 +21,46 @@ const RecipeShoppingList: React.FC = observer(() => {
     console.log("Add item button clicked");
   };
 
-  const openEdit = (recipeId: string) => (item: ShoppingItem) => {
-    setEditingRecipeId(recipeId);
-    setEditingItem(item);
-    setIsItemModalVisible(true);
-  };
-
-  const handleDelete = (recipeId: string) => (id: string) => {
-    recipeState.deleteShoppingItem(recipeId, id);
-  };
-
-  const handleToggle = (recipeId: string) => (id: string) => {
-    recipeState.toggleShoppingItem(recipeId, id);
-  };
-
-  if (recipes.length === 0) {
-    return <div>Нет рецептов для отображения.</div>;
-  }
-
-  // Merge all shopping items for aggregated view
-  const mergedItems: ShoppingItem[] = recipes.flatMap((r) => r.shoppingList);
+  // Prepare aggregated data when in 'none' group
+  const mergedItems: (ShoppingItem & { originalRecipeId?: string })[] =
+    recipes.flatMap((r) =>
+      r.shoppingList.map((item) => ({ ...item, originalRecipeId: r.id })),
+    );
   const virtualRecipe: Recipe = {
     id: "all",
     title: "Общий список",
     description: "",
     cookingTime: 0,
     servings: 0,
-    shoppingList: mergedItems,
+    shoppingList: mergedItems as ShoppingItem[],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
+
+  const itemToRecipeMap = new Map<string, string>();
+  mergedItems.forEach((item) => {
+    if (item.originalRecipeId) {
+      itemToRecipeMap.set(item.id, item.originalRecipeId);
+    }
+  });
+
+  const openEdit = (recipeId?: string) => (item: ShoppingItem) => {
+    setEditingRecipeId(recipeId || (item as any).originalRecipeId!);
+    setEditingItem(item);
+    setIsItemModalVisible(true);
+  };
+
+  const handleDeleteAggregated = (id: string) => {
+    const rid = itemToRecipeMap.get(id);
+    if (rid) recipeState.deleteShoppingItem(rid, id);
+  };
+
+  const handleToggleAggregated = (id: string) => {
+    const rid = itemToRecipeMap.get(id);
+    if (rid) recipeState.toggleShoppingItem(rid, id);
+  };
+
+  if (!recipes.length) return <div>Нет рецептов для отображения.</div>;
 
   return (
     <div style={{ padding: "16px" }}>
@@ -69,8 +79,8 @@ const RecipeShoppingList: React.FC = observer(() => {
             groupBy={groupBy}
             searchText={searchText}
             onEdit={openEdit(r.id)}
-            onDelete={handleDelete(r.id)}
-            onToggle={handleToggle(r.id)}
+            onDelete={(id: string) => recipeState.deleteShoppingItem(r.id, id)}
+            onToggle={(id: string) => recipeState.toggleShoppingItem(r.id, id)}
           />
         ))
       ) : (
@@ -78,9 +88,9 @@ const RecipeShoppingList: React.FC = observer(() => {
           selectedRecipe={virtualRecipe}
           groupBy={groupBy}
           searchText={searchText}
-          onEdit={() => {}}
-          onDelete={() => {}}
-          onToggle={() => {}}
+          onEdit={openEdit()}
+          onDelete={(id: string) => handleDeleteAggregated(id)}
+          onToggle={(id: string) => handleToggleAggregated(id)}
         />
       )}
       {isItemModalVisible && (
@@ -95,7 +105,6 @@ const RecipeShoppingList: React.FC = observer(() => {
                 tags: values.tags || [],
               });
             } else if (editingRecipeId) {
-              // Adding new item to recipe
               recipeState.addShoppingItem(editingRecipeId, {
                 name: values.name,
                 amount: values.amount,
