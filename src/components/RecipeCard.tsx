@@ -9,30 +9,21 @@ import {
   Tag,
   Statistic,
   Progress,
-  Badge,
   Button,
   Input,
   Segmented,
-  List,
-  Empty,
 } from "antd";
 import {
   PlusOutlined,
   ShoppingCartOutlined,
-  UnorderedListOutlined,
-  TagsOutlined,
-  CheckCircleOutlined,
   ClockCircleOutlined,
   TeamOutlined,
-  BookOutlined,
-  DownOutlined,
-  UpOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import type { FormInstance } from "antd";
 import type { Recipe, ShoppingItem, GroupByType } from "../types";
 import ShoppingListItem from "./ShoppingListItem";
-import { AVAILABLE_TAGS } from "../constants/tags";
+import { AVAILABLE_TAGS, GROUP_BY_OPTIONS } from "../constants/ui";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -61,8 +52,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   setGroupBy,
   searchText,
   setSearchText,
-  collapsedSections,
-  setCollapsedSections,
   itemForm,
   setIsItemModalVisible,
   setEditingItem,
@@ -72,11 +61,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 }) => {
   const getGroupedItems = (): { [key: string]: ShoppingItem[] } => {
     if (!selectedRecipe) return {};
-
-    let items = selectedRecipe.shoppingList.filter((item) =>
-      item.name.toLowerCase().includes(searchText.toLowerCase()),
+    let items = selectedRecipe.shoppingList.filter((i) =>
+      i.name.toLowerCase().includes(searchText.toLowerCase()),
     );
-
     switch (groupBy) {
       case "recipe":
         return { [selectedRecipe.title]: items };
@@ -89,9 +76,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           } else {
             item.tags.forEach((tagId) => {
               const tag = AVAILABLE_TAGS.find((t) => t.id === tagId);
-              const tagName = tag?.name || tagId;
-              if (!grouped[tagName]) grouped[tagName] = [];
-              grouped[tagName].push(item);
+              const name = tag?.name || tagId;
+              if (!grouped[name]) grouped[name] = [];
+              grouped[name].push(item);
             });
           }
         });
@@ -108,7 +95,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     <Content style={{ padding: "24px", background: "#f5f5f5" }}>
       {selectedRecipe ? (
         <>
-          {/* Заголовок рецепта */}
           <Card style={{ marginBottom: "24px" }}>
             <Row gutter={16} align="middle">
               <Col flex="auto">
@@ -158,7 +144,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             </Row>
           </Card>
 
-          {/* Панель управления */}
           <Card style={{ marginBottom: "24px" }}>
             <Row gutter={16} align="middle">
               <Col flex="auto">
@@ -174,23 +159,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                   <Segmented
                     value={groupBy}
                     onChange={(value) => setGroupBy(value as GroupByType)}
-                    options={[
-                      {
-                        label: "По рецепту",
-                        value: "recipe",
-                        icon: <BookOutlined />,
-                      },
-                      {
-                        label: "По тегам",
-                        value: "tag",
-                        icon: <TagsOutlined />,
-                      },
-                      {
-                        label: "Без группировки",
-                        value: "none",
-                        icon: <UnorderedListOutlined />,
-                      },
-                    ]}
+                    options={GROUP_BY_OPTIONS}
                   />
                 </Space>
               </Col>
@@ -210,94 +179,23 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             </Row>
           </Card>
 
-          {/* Список покупок с группировкой */}
           {Object.entries(getGroupedItems()).map(([groupName, items]) => (
-            <Card
-              key={groupName}
-              style={{ marginBottom: "24px" }}
-              title={
-                <Space>
-                  <Text strong style={{ fontSize: "16px" }}>
-                    {groupName}
-                  </Text>
-                  <Badge
-                    count={items.length}
-                    style={{ backgroundColor: "#1890ff" }}
+            <React.Fragment key={groupName}>
+              <Card style={{ marginBottom: "12px" }} title={groupName}>
+                {items.map((item) => (
+                  <ShoppingListItem
+                    key={item.id}
+                    item={item}
+                    onEdit={handleEditItem}
+                    onDelete={handleDeleteItem}
+                    onToggle={handleToggleItem}
                   />
-                  <Badge
-                    count={items.filter((i) => i.completed).length}
-                    style={{ backgroundColor: "#52c41a" }}
-                  >
-                    <CheckCircleOutlined />
-                  </Badge>
-                </Space>
-              }
-              extra={
-                <Button
-                  type="text"
-                  icon={
-                    collapsedSections.includes(groupName) ? (
-                      <DownOutlined />
-                    ) : (
-                      <UpOutlined />
-                    )
-                  }
-                  onClick={() => {
-                    if (collapsedSections.includes(groupName)) {
-                      setCollapsedSections(
-                        collapsedSections.filter((s) => s !== groupName),
-                      );
-                    } else {
-                      setCollapsedSections([...collapsedSections, groupName]);
-                    }
-                  }}
-                />
-              }
-            >
-              {!collapsedSections.includes(groupName) &&
-                (items.length > 0 ? (
-                  <List
-                    dataSource={items}
-                    renderItem={(item) => (
-                      <ShoppingListItem
-                        item={item}
-                        onEdit={handleEditItem}
-                        onDelete={handleDeleteItem}
-                        onToggle={handleToggleItem}
-                      />
-                    )}
-                  />
-                ) : (
-                  <Empty description="Нет покупок в этой категории" />
                 ))}
-            </Card>
+              </Card>
+            </React.Fragment>
           ))}
-
-          {Object.keys(getGroupedItems()).length === 0 && (
-            <Empty
-              description="Список покупок пуст"
-              style={{ marginTop: "50px" }}
-            >
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  setEditingItem(null);
-                  itemForm.resetFields();
-                  setIsItemModalVisible(true);
-                }}
-              >
-                Добавить первую покупку
-              </Button>
-            </Empty>
-          )}
         </>
-      ) : (
-        <Empty
-          description="Выберите рецепт или создайте новый"
-          style={{ marginTop: "100px" }}
-        />
-      )}
+      ) : null}
     </Content>
   );
 };

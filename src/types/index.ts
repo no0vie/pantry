@@ -1,5 +1,20 @@
 export type TagType = 'bakaleya' | 'conservy' | 'ovoshi' | 'myaso' | 'molochnoe' | 'frukty' | 'specy' | 'drinks';
 
+export interface DemoRecipeData {
+  id: string;
+  title: string;
+  description: string;
+  cookingTime: number;
+  servings: number;
+  shoppingList: Array<{
+    id: string;
+    name: string;
+    amount: string;
+    tags: TagType[];
+    completed: boolean;
+  }>;
+}
+
 export interface Tag {
   id: TagType;
   name: string;

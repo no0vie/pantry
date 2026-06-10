@@ -3,12 +3,11 @@ import React, { useState, useEffect } from "react";
 import { Layout, Menu, Button, Form, message, Space } from "antd";
 import {
   PlusOutlined,
-  BookOutlined,
-  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Recipe, ShoppingItem, GroupByType } from "./types";
 import { recipeState } from "./states/RecipeState";
+import { MENU_ITEMS } from "./constants/ui";
 import RecipeCard from "./components/RecipeCard";
 import RecipeModal from "./components/RecipeModal";
 import RecipeItemModal from "./components/RecipeItemModal";
@@ -140,18 +139,7 @@ const AppInner: React.FC = () => {
     ? getRecipeStats(selectedRecipe)
     : { total: 0, completed: 0, percentage: 0 };
 
-  const menuItems: MenuProps["items"] = [
-    {
-      key: "1",
-      icon: <BookOutlined />,
-      label: "Мои рецепты",
-    },
-    {
-      key: "2",
-      icon: <ShoppingCartOutlined />,
-      label: "Список покупок",
-    },
-  ];
+  const menuItems: MenuProps["items"] = MENU_ITEMS;
 
   return (
     <Layout style={{ minHeight: "100vh" }}>

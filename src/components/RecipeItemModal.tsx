@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Modal, Form, Input, Select, Button, Space, Tag } from "antd";
-import { AVAILABLE_TAGS, TAG_ICON_MAP } from "../constants/tags";
+import { AVAILABLE_TAGS, TAG_ICON_MAP } from "../constants/ui";
 import type { ShoppingItem, TagType } from "../types";
 
 interface RecipeItemModalProps {
