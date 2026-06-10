@@ -16,9 +16,8 @@ const RecipeShoppingList: React.FC = observer(() => {
   const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
 
-  // Add action placeholder (not functional in this view)
   const handleAdd = () => {
-    console.log("Add item button clicked");
+    setIsItemModalVisible(true);
   };
 
   // Prepare aggregated data when in 'none' group
@@ -97,7 +96,13 @@ const RecipeShoppingList: React.FC = observer(() => {
         <RecipeItemModal
           visible={isItemModalVisible}
           onClose={() => setIsItemModalVisible(false)}
+          recepies={recipes}
           onSubmit={(values) => {
+            const recipeId = values.recipe;
+            if (!recipeId) {
+              // no selection, error handling maybe
+              return;
+            }
             if (editingRecipeId && editingItem) {
               recipeState.updateShoppingItem(editingRecipeId, editingItem.id, {
                 name: values.name,
@@ -105,7 +110,16 @@ const RecipeShoppingList: React.FC = observer(() => {
                 tags: values.tags || [],
               });
             } else if (editingRecipeId) {
+              // adding to specific recipe from list view
               recipeState.addShoppingItem(editingRecipeId, {
+                name: values.name,
+                amount: values.amount,
+                tags: values.tags || [],
+              });
+            } else {
+              // adding when not editing a recipe; use selected recipe id
+              const selectedRecipeId = values.recipe;
+              recipeState.addShoppingItem(selectedRecipeId, {
                 name: values.name,
                 amount: values.amount,
                 tags: values.tags || [],

@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { Modal, Form, Input, Select, Button, Space, Tag } from "antd";
 import { AVAILABLE_TAGS, TAG_ICON_MAP } from "../constants/ui";
-import type { ShoppingItem, TagType } from "../types";
+import type { ShoppingItem, TagType, Recipe } from "../types";
 
 interface RecipeItemModalProps {
+  recepies?: Recipe[];
   visible: boolean;
   onClose: () => void;
   onSubmit: (values: any) => void;
@@ -14,6 +15,7 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
   visible,
   onClose,
   onSubmit,
+  recepies = [],
   editingItem,
 }) => {
   const [form] = Form.useForm();
@@ -53,6 +55,22 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
         >
           <Input placeholder="Например: 2 шт или 500 г" />
         </Form.Item>
+        {!!recepies.length && (
+          <Form.Item
+            name="recipe"
+            label="Рецепт"
+            rules={[{ required: true, message: "Выберите рецепт" }]}
+          >
+            <Select placeholder="Выберите рецепт">
+              {recepies.map((recipe) => (
+                <Select.Option key={recipe.id} value={recipe.id}>
+                  {recipe.title}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
+
         <Form.Item name="tags" label="Теги">
           <Select mode="multiple" placeholder="Выберите теги" allowClear>
             {AVAILABLE_TAGS.map((tag) => (
