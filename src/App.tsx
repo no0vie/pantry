@@ -1,9 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useState, useEffect } from "react";
 import { Layout, Menu, Button, Form, message, Space } from "antd";
-import {
-  PlusOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Recipe, ShoppingItem, GroupByType } from "./types";
 import { recipeState } from "./states/RecipeState";
@@ -11,6 +9,7 @@ import { MENU_ITEMS } from "./constants/ui";
 import RecipeCard from "./components/RecipeCard";
 import RecipeModal from "./components/RecipeModal";
 import RecipeItemModal from "./components/RecipeItemModal";
+import RecipeShoppingList from "./components/RecipeShoppingList";
 import RecipeSider from "./components/RecipeSider";
 
 const { Header } = Layout;
@@ -20,6 +19,7 @@ const AppInner: React.FC = () => {
   const [groupBy, setGroupBy] = useState<GroupByType>("recipe");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isItemModalVisible, setIsItemModalVisible] = useState(false);
+  const [selectedMenuKey, setSelectedMenuKey] = useState<string>("1");
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
   const [searchText, setSearchText] = useState("");
@@ -164,7 +164,8 @@ const AppInner: React.FC = () => {
         </div>
         <Menu
           mode="horizontal"
-          defaultSelectedKeys={["1"]}
+          selectedKeys={[selectedMenuKey]}
+          onClick={({ key }) => setSelectedMenuKey(key)}
           items={menuItems}
           style={{ flex: 1, border: "none" }}
         />
@@ -194,22 +195,26 @@ const AppInner: React.FC = () => {
           handleDeleteRecipe={handleDeleteRecipe}
         />
 
-        <RecipeCard
-          selectedRecipe={selectedRecipe}
-          currentStats={currentStats}
-          groupBy={groupBy}
-          setGroupBy={setGroupBy}
-          searchText={searchText}
-          setSearchText={setSearchText}
-          collapsedSections={collapsedSections}
-          setCollapsedSections={setCollapsedSections}
-          itemForm={itemForm}
-          setIsItemModalVisible={setIsItemModalVisible}
-          setEditingItem={setEditingItem}
-          handleEditItem={handleEditItem}
-          handleDeleteItem={handleDeleteItem}
-          handleToggleItem={handleToggleItem}
-        />
+        {selectedMenuKey === "2" ? (
+          <RecipeShoppingList />
+        ) : (
+          <RecipeCard
+            selectedRecipe={selectedRecipe}
+            currentStats={currentStats}
+            groupBy={groupBy}
+            setGroupBy={setGroupBy}
+            searchText={searchText}
+            setSearchText={setSearchText}
+            collapsedSections={collapsedSections}
+            setCollapsedSections={setCollapsedSections}
+            itemForm={itemForm}
+            setIsItemModalVisible={setIsItemModalVisible}
+            setEditingItem={setEditingItem}
+            handleEditItem={handleEditItem}
+            handleDeleteItem={handleDeleteItem}
+            handleToggleItem={handleToggleItem}
+          />
+        )}
       </Layout>
 
       {/* Модальное окно для рецепта */}
