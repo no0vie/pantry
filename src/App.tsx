@@ -28,11 +28,15 @@ const AppInner: React.FC = () => {
   const [form] = Form.useForm();
   const [itemForm] = Form.useForm();
 
-  // Загрузка рецептов при монтировании компонента
   useEffect(() => {
-    if (!recipeState.hasRecipes) {
-      recipeState.loadRecipes();
-    }
+    const init = async () => {
+      if (!recipeState.hasRecipes) {
+        await recipeState.loadRecipes();
+      }
+      // Load shopping items for all recipes
+      recipeState.recipes.forEach((r) => shoppingItemState.loadByRecipe(r.id));
+    };
+    init();
   }, []);
 
   // Обёртка для setSelectedRecipe, совместимая с Dispatch<SetStateAction>
