@@ -13,13 +13,13 @@ export class ShoppingItemState {
 
   constructor() {
     makeAutoObservable(this);
+    this.initialize();
   }
 
-  /**
-   * Load a single ShoppingItem by its ID from the mock backend.
-   * @param id The ID of the item to load.
-   */
-  loadById = (id: string): void => {
+  /** Load a single ShoppingItem by its ID from the mock backend. */
+  loadById = async (id: string, storeToLocalStorage = true): Promise<void> => {
+    // Simulate backend delay
+    await new Promise((resolve) => setTimeout(resolve, 200));
     const demoItem = DEMO_SHOPPING_ITEMS.find((i) => i.id === id);
     if (!demoItem) return;
     const idx = this.items.findIndex((i) => i.id === id);
@@ -29,12 +29,39 @@ export class ShoppingItemState {
     } else {
       this.items.push(newItem);
     }
-    // If we already know recipe mapping from loadByRecipe, preserve it
+
+    if (storeToLocalStorage) {
+      this.saveToLocalStorage();
+    }
   };
 
-  loadByIds = (ids: string[]): void => {
-    ids.map(this.loadById);
+  /** Load multiple shopping items by their IDs */
+  loadByIds = async (ids: string[]): Promise<void> => {
+    await Promise.all(ids.map((id) => this.loadById(id, false)));
+
+    this.saveToLocalStorage();
   };
+
+  private initialize(): void {
+    const stored =
+      typeof window !== "undefined"
+        ? localStorage.getItem("shopping_items")
+        : null;
+    if (stored) {
+      try {
+        this.items = JSON.parse(stored);
+      } catch (_) {}
+    }
+  }
+
+  /** Persist items to localStorage and record timestamp */
+  private saveToLocalStorage(): void {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("shopping_items", JSON.stringify(this.items));
+      localStorage.setItem("shopping_items_last_saved", Date.now().toString());
+    } catch (_) {}
+  }
 
   /* ---------- Mutations ---------- */
   addItem = (item: Omit<ShoppingItem, "id" | "completed">): ShoppingItem => {
@@ -44,7 +71,7 @@ export class ShoppingItemState {
       ...item,
     };
     this.items.push(newItem);
-
+    this.saveToLocalStorage();
     return newItem;
   };
 
@@ -52,6 +79,7 @@ export class ShoppingItemState {
     const idx = this.items.findIndex((i) => i.id === id);
     if (idx !== -1) {
       this.items[idx].completed = !this.items[idx].completed;
+      this.saveToLocalStorage();
     }
   };
 
@@ -62,11 +90,13 @@ export class ShoppingItemState {
     const idx = this.items.findIndex((i) => i.id === id);
     if (idx !== -1) {
       this.items[idx] = { ...this.items[idx], ...values };
+      this.saveToLocalStorage();
     }
   };
 
   deleteItem = (id: string): void => {
     this.items = this.items.filter((i) => i.id !== id);
+    this.saveToLocalStorage();
   };
 }
 
