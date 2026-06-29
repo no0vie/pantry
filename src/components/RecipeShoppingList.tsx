@@ -40,24 +40,18 @@ const RecipeShoppingList: React.FC = observer(() => {
     updatedAt: new Date(),
   };
 
-  const openEdit = (item: ShoppingItem) => {
-    // const rid = shoppingItemState.getRecipeForItem(item.id);
-    // setEditingRecipeId(rid ?? null);
-    // setEditingItem(item);
-    // setIsItemModalVisible(true);
-    // todo
+  const openEdit = (rid: string | null, item: ShoppingItem) => {
+    setEditingRecipeId(rid);
+    setEditingItem(item);
+    setIsItemModalVisible(true);
   };
 
-  const handleDeleteAggregated = (id: string) => {
-    // const rid = shoppingItemState.getRecipeForItem(id);
-    // if (rid) recipeState.deleteShoppingItem(rid, id);
-    // todo
+  const handleDeleteAggregated = (rid: string | null, id: string) => {
+    recipeState.deleteShoppingItem(rid, id);
   };
 
   const handleToggleAggregated = (id: string) => {
-    // const rid = shoppingItemState.getRecipeForItem(id);
-    // if (rid) shoppingItemState.toggleCompleted(rid);
-    // todo
+    shoppingItemState.toggleCompleted(id);
   };
 
   if (!recipes.length) return <div>Нет рецептов для отображения.</div>;
@@ -78,7 +72,7 @@ const RecipeShoppingList: React.FC = observer(() => {
             selectedRecipe={r}
             groupBy={groupBy}
             searchText={searchText}
-            onEdit={openEdit}
+            onEdit={(item) => openEdit(r.id, item)}
             onDelete={(id: string) => recipeState.deleteShoppingItem(r.id, id)}
             onToggle={(id: string) => shoppingItemState.toggleCompleted(id)}
           />
@@ -88,8 +82,8 @@ const RecipeShoppingList: React.FC = observer(() => {
           selectedRecipe={virtualRecipe}
           groupBy={groupBy}
           searchText={searchText}
-          onEdit={openEdit}
-          onDelete={(id: string) => handleDeleteAggregated(id)}
+          onEdit={(item) => openEdit(null, item)}
+          onDelete={(id: string) => handleDeleteAggregated(null, id)}
           onToggle={(id: string) => handleToggleAggregated(id)}
         />
       )}

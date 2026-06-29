@@ -173,10 +173,10 @@ export class RecipeState {
     });
   };
 
-  deleteShoppingItem = (recipeId: string, itemId: string): void => {
+  deleteShoppingItem = (recipeId: string | null, itemId: string): void => {
     runInAction(() => {
       shoppingItemState.deleteItem(itemId);
-      const recipe = this.items.find((r) => r.id === recipeId);
+      const recipe = recipeId && this.items.find((r) => r.id === recipeId);
       if (recipe) {
         recipe.updatedAt = new Date();
         if (this.selectedItem?.id === recipeId) {
