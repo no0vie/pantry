@@ -16,16 +16,16 @@ export interface ShoppingListProps {
 const getGroupedItems = (
   selectedRecipe: Recipe | null,
   groupBy: GroupByType,
-  searchText: string,
+  searchText?: string,
 ): GroupedItems => {
   if (!selectedRecipe) return {};
 
   let items: ShoppingItem[] =
     selectedRecipe.shoppingList as unknown as ShoppingItem[];
 
-  const filtered = items.filter((i) =>
+  const filtered = searchText ? items.filter((i) =>
     i.name.toLowerCase().includes(searchText.toLowerCase()),
-  );
+  ) : [];
 
   const groupItems = filtered;
 
