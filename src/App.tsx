@@ -171,7 +171,7 @@ const AppInner: React.FC = () => {
             marginRight: "40px",
           }}
         >
-          🍳 CookBook Pro
+          🍳 Pantry
         </div>
         <Menu
           mode="horizontal"
