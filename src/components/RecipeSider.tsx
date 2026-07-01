@@ -118,7 +118,7 @@ const RecipeSider: React.FC<RecipeSiderProps> = ({
                         recipe.shoppingList.includes(shoppingItem.id),
                     );
                     const completed = items.reduce(
-                      (acc, item) => acc + (item.completed ? 1 : 0),
+                      (acc, item) => acc + (item.completed ? 0 : 1),
                       0,
                     );
 

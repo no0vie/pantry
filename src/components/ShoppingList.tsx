@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, Divider } from "antd";
 import type { Recipe, GroupByType, GroupedItems, ShoppingItem } from "../types";
+import { shoppingItemState } from "../states/ShoppingItemState";
 import ShoppingListItem from "./ShoppingListItem";
 import { AVAILABLE_TAGS } from "../constants/ui";
 
@@ -20,12 +21,17 @@ const getGroupedItems = (
 ): GroupedItems => {
   if (!selectedRecipe) return {};
 
-  let items: ShoppingItem[] =
-    selectedRecipe.shoppingList as unknown as ShoppingItem[];
+  // Resolve shopping item IDs to actual objects
+  const ids = selectedRecipe.shoppingList;
+  const items: ShoppingItem[] = ids
+    .map((id) => shoppingItemState.items.find((item) => item.id === id))
+    .filter((i): i is ShoppingItem => !!i);
 
-  const filtered = searchText ? items.filter((i) =>
-    i.name.toLowerCase().includes(searchText.toLowerCase()),
-  ) : [];
+  const filtered = searchText
+    ? items.filter((i) =>
+        i.name.toLowerCase().includes(searchText.toLowerCase()),
+      )
+    : items;
 
   const groupItems = filtered;
 
