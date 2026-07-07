@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { shoppingItemState } from "./ShoppingItemState";
-import type { DemoRecipeData, Recipe, TagType } from "../types";
+import type { DemoRecipeData, Recipe, ShoppingItem } from "../types";
 import { DEMO_RECIPES_DATA as IMPORTED_DEMO_RECIPES_DATA } from "../constants/state";
 
 const convertToRecipe = (data: DemoRecipeData): Recipe => {
@@ -139,7 +139,7 @@ export class RecipeState {
 
   addShoppingItem = (
     recipeId: string,
-    item: { name: string; amount: string; tags: TagType[] },
+    item: Pick<ShoppingItem, "name" | "quantity" | "value" | "tags">,
   ): void => {
     runInAction(() => {
       const newItem = shoppingItemState.addItem(item);
@@ -159,7 +159,7 @@ export class RecipeState {
   updateShoppingItem = (
     recipeId: string,
     itemId: string,
-    values: { name?: string; amount?: string; tags?: TagType[] },
+    values: Pick<ShoppingItem, "name" | "quantity" | "value" | "tags">,
   ): void => {
     runInAction(() => {
       shoppingItemState.updateItem(itemId, values);

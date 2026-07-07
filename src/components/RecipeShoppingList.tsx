@@ -101,14 +101,16 @@ const RecipeShoppingList: React.FC = observer(() => {
             if (editingRecipeId && editingItem) {
               recipeState.updateShoppingItem(editingRecipeId, editingItem.id, {
                 name: values.name,
-                amount: values.amount,
+                quantity: values.quantity,
+                value: values.value,
                 tags: values.tags || [],
               });
             } else if (editingRecipeId) {
               // adding to specific recipe from list view
               recipeState.addShoppingItem(editingRecipeId, {
                 name: values.name,
-                amount: values.amount,
+                quantity: values.quantity,
+                value: values.value,
                 tags: values.tags || [],
               });
             } else {
@@ -116,7 +118,8 @@ const RecipeShoppingList: React.FC = observer(() => {
               const selectedRecipeId = values.recipe;
               recipeState.addShoppingItem(selectedRecipeId, {
                 name: values.name,
-                amount: values.amount,
+                quantity: values.quantity,
+                value: values.value,
                 tags: values.tags || [],
               });
             }

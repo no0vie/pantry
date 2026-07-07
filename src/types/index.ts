@@ -14,13 +14,7 @@ export interface DemoRecipeData {
   description: string;
   cookingTime: number;
   servings: number;
-  shoppingList: Array<{
-    id: string;
-    name: string;
-    amount: string;
-    tags: TagType[];
-    completed: boolean;
-  }>;
+  shoppingList: Array<ShoppingItem>;
 }
 
 export interface Tag {
@@ -33,7 +27,8 @@ export interface Tag {
 export interface ShoppingItem {
   id: string;
   name: string;
-  amount: string;
+  quantity: string;
+  value: number;
   tags: TagType[];
   completed: boolean;
 }

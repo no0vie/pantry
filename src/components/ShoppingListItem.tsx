@@ -91,7 +91,9 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({
         }
         description={
           <Space size={4} wrap>
-            <Text type="secondary">{item.amount}</Text>
+            <Text type="secondary">
+              {item.value} {item.quantity}
+            </Text>
             {showTag &&
               item.tags.map((tagId) => {
                 const tag = AVAILABLE_TAGS.find((t) => t.id === tagId);

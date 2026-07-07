@@ -85,7 +85,7 @@ export class ShoppingItemState {
 
   updateItem = (
     id: string,
-    values: Partial<Pick<ShoppingItem, "name" | "amount" | "tags">>,
+    values: Partial<Pick<ShoppingItem, "name" | "quantity" | "value" | "tags">>,
   ): void => {
     const idx = this.items.findIndex((i) => i.id === id);
     if (idx !== -1) {

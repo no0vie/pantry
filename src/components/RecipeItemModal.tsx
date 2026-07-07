@@ -1,5 +1,15 @@
 import React, { useEffect } from "react";
-import { Modal, Form, Input, Select, Button, Space, Tag } from "antd";
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  Button,
+  Space,
+  Tag,
+  AutoComplete,
+  InputNumber,
+} from "antd";
 import { AVAILABLE_TAGS, TAG_ICON_MAP } from "../constants/ui";
 import type { ShoppingItem, TagType, Recipe } from "../types";
 
@@ -48,13 +58,23 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
         >
           <Input placeholder="Например: Картофель" />
         </Form.Item>
+
         <Form.Item
-          name="amount"
+          name="value"
           label="Количество"
-          rules={[{ required: true, message: "Укажите количество" }]}
+          rules={[{ required: true, message: "Введите количество единиц" }]}
         >
-          <Input placeholder="Например: 2 шт или 500 г" />
+          <InputNumber min={1} placeholder="500" />
         </Form.Item>
+
+        <Form.Item
+          name="quantity"
+          label="Условная единица"
+          rules={[{ required: true, message: "Укажите условную единицу" }]}
+        >
+          <AutoComplete placeholder="Например: шт или г" options={[]} />
+        </Form.Item>
+
         {!!recepies.length && (
           <Form.Item
             name="recipe"

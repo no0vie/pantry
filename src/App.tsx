@@ -104,13 +104,15 @@ const AppInner: React.FC = () => {
     if (editingItem) {
       recipeState.updateShoppingItem(selectedRecipe.id, editingItem.id, {
         name: values.name,
-        amount: values.amount,
+        quantity: values.quantity,
+        value: values.value,
         tags: values.tags || [],
       });
     } else {
       recipeState.addShoppingItem(selectedRecipe.id, {
         name: values.name,
-        amount: values.amount,
+        quantity: values.quantity,
+        value: values.value,
         tags: values.tags || [],
       });
     }
