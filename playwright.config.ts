@@ -11,6 +11,6 @@ export default defineConfig({
     command: "npm run dev",
     port: process.env.VITE_PORT ? Number(process.env.VITE_PORT) : 3000,
     timeout: 120000,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
   },
 });
