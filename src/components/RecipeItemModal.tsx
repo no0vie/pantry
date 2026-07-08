@@ -2,13 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   Form,
-  Input,
-  Select,
+  AutoComplete,
   Button,
   Space,
   Tag,
-  AutoComplete,
   InputNumber,
+  Select,
 } from "antd";
 import { AVAILABLE_TAGS, TAG_ICON_MAP } from "../constants/ui";
 import type { ShoppingItem, TagType, Recipe } from "../types";
@@ -36,6 +35,12 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
   const [quantityList, setQuantityList] = useState<BaseOptionType[]>([]);
   const [isQuantityChangeAvailable, setIsQuantityChangeAvailable] =
     useState<boolean>(false);
+
+  // Autocomplete options for the name field based on existing items in state
+  const nameOptions: BaseOptionType[] = Array.from(
+    new Set(shoppingItemState.items.map((item) => item.name)),
+  ).map((name) => ({ label: name, value: name }));
+
   useEffect(() => {
     if (editingItem) {
       form.setFieldsValue(editingItem);
@@ -55,24 +60,20 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
     }
   }, [editingItem, form]);
 
-  const onValuesChange = useCallback(
-    (changedFields: Partial<ShoppingItem>) => {
-      const nameVal = changedFields.name;
+  const onValuesChange = useCallback(() => {
+    const nameVal = form.getFieldValue("name");
 
-      if (nameVal) {
-        const nameQuantityList =
-          shoppingItemState.quantityItemMap[nameVal] || [];
-        setQuantityList(
-          nameQuantityList.map((item) => ({ label: item, value: item })),
-        );
-      } else {
-        setQuantityList([]);
-      }
+    if (nameVal) {
+      const nameQuantityList = shoppingItemState.quantityItemMap[nameVal] || [];
+      setQuantityList(
+        nameQuantityList.map((item) => ({ label: item, value: item })),
+      );
+    } else {
+      setQuantityList([]);
+    }
 
-      setIsQuantityChangeAvailable(!!nameVal || !!editingItem);
-    },
-    [shoppingItemState.quantityItemMap, editingItem, form],
-  );
+    setIsQuantityChangeAvailable(!!nameVal || !!editingItem);
+  }, [shoppingItemState.quantityItemMap, editingItem, form]);
 
   const getTagIcon = (tagId: TagType) => {
     const tag = AVAILABLE_TAGS.find((t) => t.id === tagId);
@@ -94,7 +95,10 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
           label="Название"
           rules={[{ required: true, message: "Введите название" }]}
         >
-          <Input placeholder="Например: Картофель" />
+          <AutoComplete
+            placeholder="Например: Картофель"
+            options={nameOptions}
+          />
         </Form.Item>
 
         <Form.Item
