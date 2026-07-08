@@ -34,27 +34,44 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
   const title = editingItem ? "Редактировать покупку" : "Добавить покупку";
   const submitText = editingItem ? "Сохранить" : "Добавить";
   const [quantityList, setQuantityList] = useState<BaseOptionType[]>([]);
+  const [isQuantityChangeAvailable, setIsQuantityChangeAvailable] =
+    useState<boolean>(false);
   useEffect(() => {
     if (editingItem) {
       form.setFieldsValue(editingItem);
+      const nameVal = editingItem.name;
+      if (nameVal) {
+        const nameQuantityList =
+          shoppingItemState.quantityItemMap[nameVal] || [];
+        setQuantityList(
+          nameQuantityList.map((item) => ({ label: item, value: item })),
+        );
+      }
+      setIsQuantityChangeAvailable(true);
     } else {
       form.resetFields();
+      setQuantityList([]);
+      setIsQuantityChangeAvailable(false);
     }
   }, [editingItem, form]);
 
   const onValuesChange = useCallback(
     (changedFields: Partial<ShoppingItem>) => {
-      if (!changedFields.name) {
-        return;
+      const nameVal = changedFields.name;
+
+      if (nameVal) {
+        const nameQuantityList =
+          shoppingItemState.quantityItemMap[nameVal] || [];
+        setQuantityList(
+          nameQuantityList.map((item) => ({ label: item, value: item })),
+        );
+      } else {
+        setQuantityList([]);
       }
 
-      const nameQuantityList =
-        shoppingItemState.quantityItemMap[changedFields.name] || [];
-      setQuantityList(
-        nameQuantityList.map((item) => ({ label: item, value: item })),
-      );
+      setIsQuantityChangeAvailable(!!nameVal || !!editingItem);
     },
-    [shoppingItemState.quantityItemMap],
+    [shoppingItemState.quantityItemMap, editingItem, form],
   );
 
   const getTagIcon = (tagId: TagType) => {
@@ -85,7 +102,11 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
           label="Количество"
           rules={[{ required: true, message: "Введите количество единиц" }]}
         >
-          <InputNumber min={1} placeholder="500" />
+          <InputNumber
+            min={1}
+            placeholder="500"
+            disabled={!isQuantityChangeAvailable}
+          />
         </Form.Item>
 
         <Form.Item
@@ -96,6 +117,7 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
           <AutoComplete
             placeholder="Например: шт или г"
             options={quantityList}
+            disabled={!isQuantityChangeAvailable}
           />
         </Form.Item>
 

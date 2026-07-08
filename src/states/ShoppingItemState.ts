@@ -1,4 +1,4 @@
-import { computed, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 import type { ShoppingItem } from "../types";
 
 /**
