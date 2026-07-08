@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { computed, makeAutoObservable } from "mobx";
 import type { ShoppingItem } from "../types";
 
 /**
@@ -14,6 +14,25 @@ export class ShoppingItemState {
   constructor() {
     makeAutoObservable(this);
     this.initialize();
+  }
+
+  get quantityItemMap() {
+    return this.items.reduce(
+      (
+        acc: { [x: ShoppingItem["name"]]: Array<ShoppingItem["quantity"]> },
+        item,
+      ) => {
+        const curQuantities = acc[item.name] || [];
+        if (!curQuantities.includes(item.quantity)) {
+          curQuantities.push(item.quantity);
+        }
+
+        acc[item.name] = curQuantities;
+
+        return acc;
+      },
+      {},
+    );
   }
 
   /** Load a single ShoppingItem by its ID from the mock backend. */

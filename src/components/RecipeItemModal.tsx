@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   Form,
@@ -12,6 +12,8 @@ import {
 } from "antd";
 import { AVAILABLE_TAGS, TAG_ICON_MAP } from "../constants/ui";
 import type { ShoppingItem, TagType, Recipe } from "../types";
+import { shoppingItemState } from "../states/ShoppingItemState";
+import { BaseOptionType } from "antd/es/select";
 
 interface RecipeItemModalProps {
   recepies?: Recipe[];
@@ -28,11 +30,10 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
   recepies = [],
   editingItem,
 }) => {
-  const [form] = Form.useForm();
-
+  const [form] = Form.useForm<ShoppingItem>();
   const title = editingItem ? "Редактировать покупку" : "Добавить покупку";
   const submitText = editingItem ? "Сохранить" : "Добавить";
-
+  const [quantityList, setQuantityList] = useState<BaseOptionType[]>([]);
   useEffect(() => {
     if (editingItem) {
       form.setFieldsValue(editingItem);
@@ -40,6 +41,21 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
       form.resetFields();
     }
   }, [editingItem, form]);
+
+  const onValuesChange = useCallback(
+    (changedFields: Partial<ShoppingItem>) => {
+      if (!changedFields.name) {
+        return;
+      }
+
+      const nameQuantityList =
+        shoppingItemState.quantityItemMap[changedFields.name] || [];
+      setQuantityList(
+        nameQuantityList.map((item) => ({ label: item, value: item })),
+      );
+    },
+    [shoppingItemState.quantityItemMap],
+  );
 
   const getTagIcon = (tagId: TagType) => {
     const tag = AVAILABLE_TAGS.find((t) => t.id === tagId);
@@ -50,7 +66,12 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
 
   return (
     <Modal title={title} open={visible} onCancel={onClose} footer={null}>
-      <Form form={form} layout="vertical" onFinish={onSubmit}>
+      <Form<ShoppingItem>
+        form={form}
+        layout="vertical"
+        onValuesChange={onValuesChange}
+        onFinish={onSubmit}
+      >
         <Form.Item
           name="name"
           label="Название"
@@ -72,7 +93,10 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
           label="Условная единица"
           rules={[{ required: true, message: "Укажите условную единицу" }]}
         >
-          <AutoComplete placeholder="Например: шт или г" options={[]} />
+          <AutoComplete
+            placeholder="Например: шт или г"
+            options={quantityList}
+          />
         </Form.Item>
 
         {!!recepies.length && (
