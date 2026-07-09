@@ -109,29 +109,33 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
           />
         </Form.Item>
 
-        <Form.Item
-          name="value"
-          label="Количество"
-          rules={[{ required: true, message: "Введите количество единиц" }]}
-        >
-          <InputNumber
-            min={1}
-            placeholder="500"
-            disabled={!isQuantityChangeAvailable}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="quantity"
-          label="Условная единица"
-          rules={[{ required: true, message: "Укажите условную единицу" }]}
-        >
-          <AutoComplete
-            placeholder="Например: шт или г"
-            options={quantityList}
-            disabled={!isQuantityChangeAvailable}
-          />
-        </Form.Item>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Form.Item
+            name="value"
+            label="Количество"
+            rules={[{ required: true, message: "Введите количество единиц" }]}
+            style={{ flexBasis: "33%", flexGrow: 1, maxWidth: "50%" }}
+          >
+            <InputNumber
+              min={1}
+              placeholder="500"
+              disabled={!isQuantityChangeAvailable}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+          <Form.Item
+            name="quantity"
+            label="Условная единица"
+            rules={[{ required: true, message: "Укажите условную единицу" }]}
+            style={{ flexBasis: '66%', flexGrow: 1 }}
+          >
+            <AutoComplete
+              placeholder="Например: шт или г"
+              options={quantityList}
+              disabled={!isQuantityChangeAvailable}
+            />
+          </Form.Item>
+        </div>
 
         {!!recepies.length && (
           <Form.Item
