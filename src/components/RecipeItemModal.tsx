@@ -10,6 +10,7 @@ import {
   Select,
 } from "antd";
 import { AVAILABLE_TAGS, TAG_ICON_MAP } from "../constants/ui";
+import { POPULAR_QUANTITY_VARIANTS } from "../constants/quantityOptions";
 import type { ShoppingItem, TagType, Recipe } from "../types";
 import { shoppingItemState } from "../states/ShoppingItemState";
 import { BaseOptionType } from "antd/es/select";
@@ -46,10 +47,13 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
       form.setFieldsValue(editingItem);
       const nameVal = editingItem.name;
       if (nameVal) {
-        const nameQuantityList =
-          shoppingItemState.quantityItemMap[nameVal] || [];
+        const baseQuantities = shoppingItemState.quantityItemMap[nameVal] || [];
+        const allQuantities = [...baseQuantities];
+        POPULAR_QUANTITY_VARIANTS.forEach((q) => {
+          if (!allQuantities.includes(q)) allQuantities.push(q);
+        });
         setQuantityList(
-          nameQuantityList.map((item) => ({ label: item, value: item })),
+          allQuantities.map((item) => ({ label: item, value: item })),
         );
       }
       setIsQuantityChangeAvailable(true);
@@ -64,9 +68,13 @@ const RecipeItemModal: React.FC<RecipeItemModalProps> = ({
     const nameVal = form.getFieldValue("name");
 
     if (nameVal) {
-      const nameQuantityList = shoppingItemState.quantityItemMap[nameVal] || [];
+      const baseQuantities = shoppingItemState.quantityItemMap[nameVal] || [];
+      const allQuantities = [...baseQuantities];
+      POPULAR_QUANTITY_VARIANTS.forEach((q) => {
+        if (!allQuantities.includes(q)) allQuantities.push(q);
+      });
       setQuantityList(
-        nameQuantityList.map((item) => ({ label: item, value: item })),
+        allQuantities.map((item) => ({ label: item, value: item })),
       );
     } else {
       setQuantityList([]);
